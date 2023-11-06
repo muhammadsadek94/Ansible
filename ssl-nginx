@@ -15,7 +15,7 @@
     - name: Copy new private key file
       copy:
         src: /letsencrypto-path
-        dest: /etc/nginx/ssl/axispay.app.key
+        dest: /etc/nginx/ssl/key
         owner: root
         group: root
         mode: '0600'
