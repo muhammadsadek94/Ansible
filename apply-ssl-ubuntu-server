@@ -1,0 +1,19 @@
+---
+- name: Apply SSL certificate to Ubuntu server
+  hosts: linux_servers
+  become: true
+  vars:
+    certificate_path: "/path/to/axispay.app.pem"      #path of crt
+    private_key_path: "/path/to/axispay.app.key" #path of key
+
+  tasks:
+    - name: Copy SSL certificate to server
+      copy:
+        src: "{{ certificate_path }}"              
+        dest: /etc/nginx/ssl/axispay.app.pem
+
+    - name: Copy private key to server
+      copy:
+        src: "{{ private_key_path }}"             
+        dest: /etc/nginx/ssl/axispay.app.key
+        mode: 0600

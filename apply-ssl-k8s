@@ -1,0 +1,29 @@
+---
+- name: Apply SSL certificate to Kubernetes
+  hosts: axis-staging
+  become: true
+  vars:
+    certificate_path: "/path/to/axispay.app.pem"
+    private_key_path: "/path/to/axispay.app.key"
+
+  tasks:
+    - name: Copy SSL certificate to Kubernetes master node
+      copy:
+        src: "{{ axispay.app.crt }}"                  #certificate_path
+        dest: /etc/nginx/ssl/axispay.app.crt
+
+    - name: Copy private key to Kubernetes master node
+      copy:
+        src: "{{ #axispay.app.key }}"                 #private_key_path
+        dest: /etc/nginx/ssl/axispay.app.key
+
+    - name: Apply SSL certificate to Kubernetes API server
+      k8s_raw:
+        api_version: v1
+        kind: Secret
+        name: ssl-certificate
+        namespace: axis-staging
+        type: kubernetes.io/tls
+        data:
+          tls.crt: "{{ lookup('file', '/etc/nginx/ssl/axispay.app.pem') | b64encode }}"       #dest of axispay.app.pem
+          tls.key: "{{ lookup('file', '/etc/nginx/ssl/axispay.app.key') | b64encode }}"        #dest of axispay.app.key

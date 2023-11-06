@@ -1,0 +1,44 @@
+---
+- name: Change Nginx SSL Certificate
+  hosts: your_server
+  become: true
+
+  tasks:
+    - name: Copy new certificate files
+      copy:
+        src: /letsencrypto-path
+        dest: /etc/nginx/ssl/new_certificate.crt
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Copy new private key file
+      copy:
+        src: /letsencrypto-path
+        dest: /etc/nginx/ssl/axispay.app.key
+        owner: root
+        group: root
+        mode: '0600'
+
+    - name: Rename old certificate files
+      command: mv /etc/nginx/ssl/certificate.crt /etc/nginx/ssl/old_certificate.crt
+      ignore_errors: true
+
+    - name: Rename old private key file
+      command: mv /etc/nginx/ssl/private_key.key /etc/nginx/ssl/old_private_key.key
+      ignore_errors: true
+
+    - name: Rename new certificate files
+      command: mv /etc/nginx/ssl/new_certificate.crt /etc/nginx/ssl/certificate.crt
+      args:
+        creates: /etc/nginx/ssl/certificate.crt
+
+    - name: Rename new private key file
+      command: mv /etc/nginx/ssl/new_private_key.key /etc/nginx/ssl/private_key.key
+      args:
+        creates: /etc/nginx/ssl/private_key.key
+
+    - name: Reload Nginx
+      service:
+        name: nginx
+        state: reloaded
